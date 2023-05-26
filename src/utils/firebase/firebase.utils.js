@@ -6,6 +6,8 @@ import {
     signInWithPopup,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
 } from 'firebase/auth';
 
 // just like firebase-app or firebase-auth, firestore is a different service.
@@ -39,12 +41,15 @@ provider.setCustomParameters({
     prompt: "select_account"
 })
 
-export const auth = getAuth();
+export const auth = getAuth(firebaseApp);
 export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
 export const signInWithGoogleRedirect = () => signInWithRedirect(auth, provider);
 
 // db is a singleton instance
 export const db = getFirestore();
+
+
+/* create document section */
 
 // this fn should receive an user authentication object
 // ..so whatever Firebase returns you want to (partially) store in Firestore
@@ -90,13 +95,31 @@ export const createUserDocumentFromAuth = async (userAuth, additionalInformation
     return userDocRef;
 }
 
+
+/**
+ * interface layer section 
+ * extending the firebase lib function to yours needs
+*/
+
 //  create user with email and password
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
     if (!email || !password) return;
     return await createUserWithEmailAndPassword(auth, email, password);
 }
 
+// signing in with email and password
 export const signInAuthUserWithEmailAndPassword = async (email, password) => {
     if (!email || !password) return;
     return await signInWithEmailAndPassword(auth, email, password);
 }
+
+// signing out
+// gets as well the auth singleton, which is what informs the firebase signOut fn
+// which user to find on the auth instance.
+export const signOutUser = async () => await signOut(auth);
+
+// 2nd param is the callback that run when the auth state changes
+// and since i wrap the firebase fn with my own i can pass the cb when calling this fn.
+// according to the documentation the onAuthStateChanged() function returns
+// an unsubscribe function for the observer.
+export const onAuthStateChangeListener = (cb) => onAuthStateChanged(auth, cb);
