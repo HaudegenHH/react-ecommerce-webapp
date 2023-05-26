@@ -26,4 +26,8 @@
   button {
     margin-top: auto;
   }
+
+  ::-webkit-scrollbar {
+    width: 0 !important
+  }
 }

@@ -1,10 +1,21 @@
 import { createContext, useState } from 'react';
 
+/*
+product:
+{ id, name, price, imageUrl }  
+
+cartItem:
+{ id, name, price, imageUrl, quantity }  
+*/
+
 export const addCartItem = (cartItems, productToAdd) => {
+
+  // check if cartItems contains productToAdd
   const existingCartItem = cartItems.find(
     (cartItem) => cartItem.id === productToAdd.id
   );
 
+  
   if (existingCartItem) {
     return cartItems.map((cartItem) =>
       cartItem.id === productToAdd.id
