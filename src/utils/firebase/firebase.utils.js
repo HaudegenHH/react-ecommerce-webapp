@@ -19,6 +19,8 @@ import {
     doc,
     getDoc,
     setDoc,
+    collection,
+    writeBatch
  } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -48,8 +50,54 @@ export const signInWithGoogleRedirect = () => signInWithRedirect(auth, provider)
 // db is a singleton instance
 export const db = getFirestore();
 
+/* ---------------------------------------------*/
+/* upload SHOP_DATA section */
 
-/* create document section */
+// collectionKey stands for the name of the collection like users or 
+// categories 
+export const addCollectionAndDocuments = async (
+    collectionKey, 
+    objectsToAdd,
+    field
+    ) => {
+    // like the documentReference there is a collectionReference as well
+    const collectionRef = collection(db, collectionKey);
+    
+    // creating a batch so that you can add all of the objects to the (eg) "categories"
+    // collection in one (successful) transaction:
+    const batch = writeBatch(db);
+
+    objectsToAdd.forEach((object) => {
+        // first you need to get the document reference
+        // but instead of giving it the db, you gonna pass it the collectionRef
+        // because this reference directly tells doc method what db and collection it
+        // is that its gonna point to.
+        // 2nd param is the title property on the object (see: shop-data.js)
+        //const docRef = doc(collectionRef, object.title.toLowerCase());
+        const docRef = doc(collectionRef, object[field].toLowerCase());
+
+        // remember: firebase will return a document reference even if it doesnt 
+        // exist yet. it would just point to that place for that specific key 
+        // (defined by the objects title) inside of the collection
+        // and here you saying: set that location and set it with the value of the 
+        // object itself (you can pass it some json object and it will build out that
+        // structure for you)
+        batch.set(docRef, object);
+    })
+    
+    // after you iterated over each object, you added an additional batch set-call on 
+    // there, creating a new document reference for each of those objects, where the 
+    // key is the title and the value is the object itself..
+    // and with committing it, it ll begin firing it off
+    await batch.commit();
+
+    console.log('done');
+    // see: products.context where the shopdata is loaded in
+} 
+
+
+/* ---------------------------------------------*/
+/* create user document section */
 
 // this fn should receive an user authentication object
 // ..so whatever Firebase returns you want to (partially) store in Firestore
@@ -96,6 +144,7 @@ export const createUserDocumentFromAuth = async (userAuth, additionalInformation
 }
 
 
+/* ---------------------------------------------*/
 /**
  * interface layer section 
  * extending the firebase lib function to yours needs
