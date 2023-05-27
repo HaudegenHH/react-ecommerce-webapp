@@ -112,6 +112,9 @@ structure of the category map:
      ...
 }
 
+objects (hash table data structures) are better for searching for items than an array. 
+This is a common computing optimization when talking about data structures.
+
 */
 
 export const getCategoriesAndDocuments = async () => {

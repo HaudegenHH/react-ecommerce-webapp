@@ -7,31 +7,31 @@ import { createContext, useState, useEffect } from "react";
 
 import { getCategoriesAndDocuments } from "../utils/firebase/firebase.utils";
 
-
-export const ProductsContext = createContext({
-    products: []
+// renaming Products- to CategoriesContext
+export const CategoriesContext = createContext({
+    categoriesMap: {}
 });
 
-export const ProductsProvider = ({children}) => {
-    const [products, setProducts] = useState([]);
-
+// similarily rename ProductsProvider to:
+export const CategoriesProvider = ({children}) => {
+    const [categoriesMap, setCategoriesMap] = useState({})
     // useEffect(() => {
     //   addCollectionAndDocuments('categories', SHOP_DATA, 'title');
     // }, [])
+
     useEffect(() => {
         const getCategoriesMap = async () => {
             const categoriesMap = await getCategoriesAndDocuments();
-            console.log(categoriesMap);
+            //console.log(categoriesMap);
             // {hats: Array(9), jackets: Array(5), mens: Array(6), 
             // sneakers: Array(8), womens: Array(7)}
-            const categories = Object.keys(categoriesMap);
-            // console.log(categories);
+            setCategoriesMap(categoriesMap);
         }
         getCategoriesMap();
     }, [])
     
-    const value = { products };
+    const value = { categoriesMap };
     return (
-        <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>
+        <CategoriesContext.Provider value={value}>{children}</CategoriesContext.Provider>
     );
 }
