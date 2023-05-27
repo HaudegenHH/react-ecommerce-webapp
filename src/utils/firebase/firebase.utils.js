@@ -20,7 +20,9 @@ import {
     getDoc,
     setDoc,
     collection,
-    writeBatch
+    writeBatch,
+    query,
+    getDocs
  } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -94,6 +96,58 @@ export const addCollectionAndDocuments = async (
     console.log('done');
     // see: products.context where the shopdata is loaded in
 } 
+
+/* 
+structure of the category map:
+
+{
+    hats: [
+        {},
+        {}
+    ],    
+    sneakers: [
+        {},
+        {}
+    ],
+     ...
+}
+
+*/
+
+export const getCategoriesAndDocuments = async () => {
+    const collectionRef = collection(db, 'categories');
+
+    // for the next step you need to import query and getDocs from FireStore
+    // cause you want to create a query based on the coll ref
+    const q = query(collectionRef);
+
+    // which returns an object which you can get a snapshot from and..
+    // getDocs is the async ability to fetch those document snapshots
+    const querySnapshot = await getDocs(q);
+    // and from here you are able to access the different documents from 
+    // the querySnapshots which returns an array of all documents inside
+    // (and the snapshots are the actual data themselves)
+    //querySnapshot.docs()
+    
+    // but here i want to reduce over this returned array and achieve the 
+    // structure showing above
+    // remember: 1st param of reduce is the cb for each item in the array
+    // and the second is the optional initial value (here an empty object)
+    // const categoryMap = querySnapshot.docs.reduce(() => {}, {});
+    const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+        // 1st: destructure off the data
+        //console.log(docSnapshot.data()); // eg: {title: 'Jackets', items: Array(5)}
+        const { title, items } = docSnapshot.data();
+
+        // the accumulator at the title value (lowercased) should be the items array
+        // so title could be "Hats", "Sneakers",etc.  
+        acc[title.toLowerCase()] = items;
+        return acc; 
+    }, {});
+
+    return categoryMap;
+}
+
 
 
 /* ---------------------------------------------*/
