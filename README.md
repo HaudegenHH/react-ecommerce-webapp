@@ -184,7 +184,8 @@ In this case the 4th value "isCartOpen" is uneffected by that update.
 
 **Conclusion: reducers are really just these object representations of these values that receive actions. And then these action intern will update the values inside of the reducer object.**
 
-First i start with the change of the previous written userContext with now using a userReducer.
+First i start with the change of the previous written userContext with now using a userReducer. Then i migrate over the cartContext with a cartReducer.
+And finally ill migrate to using Redux.
 
 From this point i switch to a new branch which i call "reducers"!
 Further explanations in the files that i ll push to that branch.
