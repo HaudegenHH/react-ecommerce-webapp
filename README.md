@@ -187,5 +187,77 @@ In this case the 4th value "isCartOpen" is uneffected by that update.
 First i start with the change of the previous written userContext with now using a userReducer. Then i migrate over the cartContext with a cartReducer.
 And finally ill migrate to using Redux.
 
-From this point i switch to a new branch which i call "reducers"!
-Further explanations in the files that i ll push to that branch.
+---
+### New branch for transitioning to Redux via useReducer 
+
+- created Context with reducers (useReducer hook) on the branch "reducers"
+
+---
+
+## Redux Flow
+
+![Alt text](./redux_flow.jpg?raw=true "Title")
+
+Redux has 3 core concepts: Store, Action and Reducer: 
+  
+- A store holds the state of the application\
+- An action describes the changes in the state of the application\
+- A reducer actually carries out the state transition depending on the action
+
+The 3 principles en detail:
+
+**1. principle\
+"The state of your whole application is stored in an object tree within a single store"\
+Meaning: Maintain your application state in a single object which would be managed by the Redux store.**
+
+Lets assume you have a shop page and you are tracking the number of products
+
+```sh
+{
+  products: 10
+}
+```
+
+**2. principle\
+"The only way to change the state is to emit an action, an object descibing  what happened"**
+
+In simple terms:
+If you want to update the state of your app, you need to let Redux know about that with an action. (you are not allowed to directly update the state object)**
+
+shop example: someone wants to buy a product\
+The action would be an object with a type property (indicating the intention):
+
+```sh
+{
+  type: 'BUY_PRODUCT'
+}
+```
+
+Fazit: State is readonly and the only way to change it is to emit/dispatch an action which is an object that describes what happens (what has to happen)
+
+**3. principle\
+"To specify how the state tree is transformed by actions, you write pure reducers"**
+
+How the state is updated tells the 3rd principle. It tells to write pure fn to to determine how the state changes.
+
+Pure reducers are simply pure functions that take the previous state and an action as inputs return the new state:
+
+Reducer - (prevState, action) => newState
+
+And being pure fn the reducer instead of updating the previous state, should return a newState object
+
+in the shop example what has to happend inside the reducer?
+A product is taken off the shelf, and the products count is reduced by 1.
+in code it would be simplified:
+
+```sh
+const reducer = (state, action) => {
+  switch (action.type) {
+    case BUY_PRODUCT: return {
+      numOfProducts: state.numOfProducts - 1
+    }
+  }
+}
+```
+
+So the reducer is a function that accepts the current state and the action as parameters. Based on what the action.type is, a new state object is returned.
