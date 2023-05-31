@@ -261,3 +261,135 @@ const reducer = (state, action) => {
 ```
 
 So the reducer is a function that accepts the current state and the action as parameters. Based on what the action.type is, a new state object is returned.
+
+### Actions
+Usually you'd use String constants..
+
+```sh
+const BUY_PRODUCT = 'BUY_PRODUCT'
+
+function buyProduct() {
+  return {
+    type: BUY_PRODUCT,
+    info: 'first redux action'
+  }
+} 
+```
+
+This fn is called an action creator cause its returns the action object with the type property.
+
+If you follow the diagram the next "station" after the action would be the Reducer.
+Actions only describe what happened but they dont describe how the application state changes. Thats what reducers are in charge of. 
+In terms of code the reducers are functions thats accepts state and action as arguments and return the next state.
+
+in the shop example we just keep track of one numeric value: the number of products, which represents the state.
+According to principle no1 the state has to be represented by a single object:
+
+```sh
+const initialState = {
+  numOfProducts: 10
+} 
+```
+
+That initialState you pass as the default value for the state parameter into the reducer function.
+
+```sh
+const reducer = (state = initialState, action) => {
+  switch(action.type) {
+    case BUY_PRODUCT: 
+       return {
+          numOfProducts: state.numOfProducts - 1
+       }
+     default: return state
+  }
+}
+```
+
+If there is an action what you havent accounted for, you simply return the state as it is in the default case. 
+
+Important to note is, that if BUY_PRODUCT case runs, you are not mutating the state object you are returning a new object!
+
+If there are more than one property to keep track of, you want to spread out the values from the previous state object (...state) and overwrite only that values that needs to be be changed.
+
+```sh
+const reducer = (state = initialState, action) => {
+  switch(action.type) {
+    case BUY_PRODUCT: 
+       return {
+          ...state,
+          numOfProducts: state.numOfProducts - 1
+       }
+     default: return state
+  }
+}
+```
+
+### Redux Store
+- holds app state
+- allows access to state via getState()
+- allows state to be updated via dispatch(action)
+- registers listeners via subscribe(listener)
+- handles unregistering of listeners via the function returned by: subscribe(listener)
+
+in code:
+- first import redux\
+import redux from 'redux'\
+or the "old" way: const redux = require('redux')
+
+- then you can grab the createStore method from that library\
+const createStore = redux.createStore
+
+- to utilize it\
+const store = createStore(reducer)
+
+- the reducer has the initial state, what is required for the store to make the state transition based on the actions that it receive (first responsibility solved)
+
+- 2nd responsibility is to expose a method called getState() which serves the current state in the store \
+console.log('Initial state', store.getState())
+
+Since you havent performed any state transitions yet, the state should give back the initial state. 
+
+- 4th: subscription\
+const unsubscribe = store.subscribe(() => console.log('Updated state', store.getState()))
+
+- 3rd: dispatching
+
+store.dispatch(buyProduct()) \
+store.dispatch(buyProduct()) \
+store.dispatch(buyProduct())
+
+- 5th and final part is to unsubsribe from the store by calling the function returned by the subscribe method.
+
+unsubscribe()
+
+Thats all the responsibilities of the redux store.
+You could now test the "shop application".\
+Assuming youve written all the code fragments above into one index.js
+..you could run it as usual with \
+node index 
+
+...in the terminal and the output would be:
+```sh
+Initial state { numOfProducts: 10 } 
+Updated state { numOfProducts: 9 }
+Updated state { numOfProducts: 8 }
+Updated state { numOfProducts: 7 }
+```
+
+in short:
+```sh
+const store = createStore(reducer)
+console.log('Initial state', store.getState())
+const unsubscribe = store.subscribe(() => console.log('Updated state', store.getState()))
+store.dispatch(buyProduct())
+store.dispatch(buyProduct())
+store.dispatch(buyProduct())
+unsubscribe()
+```
+
+- First you create the redux store
+- then you log the initial state to the console
+- then you set up a listener to the store: whenever the state updates, a callback fn will log the current state object to the console
+- when you dispatch the first action (via action creator fn) the reducer sees the the type is "BUY_PRODUCT", it ll then go through the switch case and try to match the type. It matches the first case and returns the new state with the decremented numOfProducts and due to the listener this new state gets logged to the console
+- same for the next 2 dispatches
+- unsubscribe to the store
